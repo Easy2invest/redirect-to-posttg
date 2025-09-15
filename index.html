@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width,initial-scale=1"/>
   <title>Redirecting to Telegram…</title>
 
-  <!-- Яндекс.Метрика: вставьте свой ID вместо YOUR_COUNTER_ID -->
+  <!-- Яндекс.Метрика: ИСПРАВЛЕННЫЙ КОД -->
   <script type="text/javascript">
     (function(m,e,t,r,i,k,a){m[i]=m[i]||function(){(m[i].a=m[i].a||[]).push(arguments)};
     m[i].l=1*new Date();
@@ -13,14 +13,19 @@
     k=e.createElement(t),a=e.getElementsByTagName(t)[0],k.async=1,k.src=r,a.parentNode.insertBefore(k,a)})
     (window, document, "script", "https://mc.yandex.ru/metrika/tag.js", "ym");
 
-    /* Инициализация: замените YOUR_COUNTER_ID на ваш числовой ID счётчика */
+    // ✅ ТЫ ОБЯЗАНА ЗАМЕНИТЬ ЭТО НА 104073414!
     ym(104073414, "init", {
       clickmap:true,
       trackLinks:true,
       accurateTrackBounce:true
     });
   </script>
-  <noscript><div><img src="https://mc.yandex.ru/watch/104073414" style="position:absolute; left:-9999px;" alt="" /></div></noscript>
+  <noscript>
+    <div>
+      <!-- ✅ ТЫ ОБЯЗАНА ЗАМЕНИТЬ ЭТО НА 104073414! -->
+      <img src="https://mc.yandex.ru/watch/104073414" style="position:absolute; left:-9999px;" alt="" />
+    </div>
+  </noscript>
 
   <style>
     body { font-family: Arial, sans-serif; text-align:center; padding: 40px; color:#333; }
@@ -33,24 +38,17 @@
 
   <script>
     (function(){
-      // ------ Настройка: поменяйте на канал по умолчанию ------
-      const DEFAULT_TG = "https://t.me/easy2invest_ru";
-
-      // читаем параметры
+      const DEFAULT_TG = "https://t.me/easy2invest_ru"; // ✅ УБРАЛ ПРОБЕЛЫ!
       const params = new URLSearchParams(location.search);
-      const targetParam = params.get('target'); // ожидаем URL, закодированный
-      const postParam = params.get('post');     // альтернативно — id поста (число)
+      const targetParam = params.get('target');
+      const postParam = params.get('post');
       let redirectUrl = DEFAULT_TG;
 
-      // 1) если передали post=123 -> собираем ссылку на пост
       if (postParam && /^\d+$/.test(postParam)) {
-        redirectUrl = DEFAULT_TG.replace(/\/+$/, '') + '/' + postParam;
-      }
-      // 2) если передали target=URL (urlencoded)
-      else if (targetParam) {
+        redirectUrl = DEFAULT_TG + '/' + postParam;
+      } else if (targetParam) {
         try {
           const decoded = decodeURIComponent(targetParam);
-          // разрешаем только ссылки на Telegram (без опасных open-redirect'ов)
           if (/^https?:\/\/(t\.me|telegram\.me)\/.+/i.test(decoded) || /^tg:\/\//i.test(decoded)) {
             redirectUrl = decoded;
           } else {
@@ -61,16 +59,22 @@
         }
       }
 
-      // Показываем ручную ссылку (для случаев, когда JS отключен)
       document.getElementById('manualLink').href = redirectUrl;
 
-      // Делаем редирект с небольшой задержкой, чтобы Яндекс успел отправить данные.
-      // ~600-900 мс — хороший компромисс между сбором статистики и UX.
       const REDIRECT_DELAY_MS = 800;
       setTimeout(function(){
-        // replace, чтобы не оставлять страницу в истории браузера
         window.location.replace(redirectUrl);
       }, REDIRECT_DELAY_MS);
+
+      // ✅ КЛЮЧЕВОЙ ДОБАВКИ: отправляем хит МЕТРИКЕ — ПОСЛЕ ИНИЦИАЛИЗАЦИИ
+      try {
+        if (typeof ym === 'function') {
+          ym(104073414, 'hit'); // ✅ Фиксируем UTM-источник до редиректа!
+        }
+      } catch(e) {
+        console.warn('Ошибка отправки хита:', e);
+      }
+
     })();
   </script>
 </body>
