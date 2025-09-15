@@ -34,7 +34,7 @@
 
   <script>
     (function(){
-      const DEFAULT_TG = "https://t.me/easy2invest_ru";
+      const DEFAULT_TG = "https://t.me/easy2invest_ru"; // ✅ УБРАЛ ПРОБЕЛЫ!
       const params = new URLSearchParams(location.search);
       const targetParam = params.get('target');
       const postParam = params.get('post');
@@ -57,22 +57,21 @@
 
       document.getElementById('manualLink').href = redirectUrl;
 
-      // ✅ ОТПРАВЛЯЕМ ХИТ — ОБЯЗАТЕЛЬНО!
+      // ✅ КЛЮЧЕВОЙ ИСПРАВЛЕНИЕ: передаём полный URL с UTM в hit()
       try {
         if (typeof ym === 'function') {
-          ym(104073414, 'hit');
+          ym(104073414, 'hit', location.href); // 👈 ВСЁ! Теперь метрика увидит pinterest!
         }
       } catch(e) {
         console.warn('Ошибка отправки хита:', e);
       }
 
-      // ✅ РЕДИРЕКТ ЧЕРЕЗ JS (задержка)
       const REDIRECT_DELAY_MS = 800;
       setTimeout(function(){
         window.location.replace(redirectUrl);
       }, REDIRECT_DELAY_MS);
 
-      // ✅ ДОПОЛНИТЕЛЬНЫЙ РЕДИРЕКТ ЧЕРЕЗ <meta> — для надёжности
+      // ✅ Дополнительный редирект через <meta> — для надёжности
       const fullUrl = window.location.href;
       const meta = document.createElement('meta');
       meta.httpEquiv = "refresh";
