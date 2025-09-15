@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1"/>
+  <title>Переход в Telegram…</title>
+
+  <!-- Яндекс.Метрика -->
+  <script type="text/javascript">
+    (function(m,e,t,r,i,k,a){
+      m[i]=m[i]||function(){(m[i].a=m[i].a||[]).push(arguments)};
+      m[i].l=1*new Date();
+      k=e.createElement(t),a=e.getElementsByTagName(t)[0];
+      k.async=1;k.src=r;a.parentNode.insertBefore(k,a)
+    })(window, document, "script", "https://mc.yandex.ru/metrika/tag.js", "ym");
+
+    ym(104073414, "init", {
+      clickmap:true,
+      trackLinks:true,
+      accurateTrackBounce:true,
+      webvisor:true
+    });
+  </script>
+  <noscript>
+    <div><img src="https://mc.yandex.ru/watch/104073414" style="position:absolute; left:-9999px;" alt="" /></div>
+  </noscript>
+
+  <style>
+    body { font-family: Arial, sans-serif; text-align:center; padding: 40px; color:#333; }
+    .small { font-size:0.9rem; color:#666; margin-top:18px; }
+  </style>
+</head>
+<body>
+  <h3>Секунду, открываю конкретный пост в Telegram…</h3>
+  <p class="small">Если переход не произошёл автоматически — нажмите <a id="manualLink" href="#">сюда</a>.</p>
+
+  <script>
+    (function(){
+      const DEFAULT_TG = "https://t.me/easy2invest_ru";
+      const params = new URLSearchParams(location.search);
+      const targetParam = params.get('target');
+      const postParam = params.get('post');
+      const REDIRECT_DELAY_MS = 1200; // чуть дольше для постов
+
+      let redirectUrl = DEFAULT_TG;
+      if (postParam && /^\d+$/.test(postParam)) {
+        redirectUrl = DEFAULT_TG.replace(/\/+$/, '') + '/' + postParam;
+      } else if (targetParam) {
+        try {
+          const decoded = decodeURIComponent(targetParam);
+          if (/^https?:\/\/(t\.me|telegram\.me)\/.+/i.test(decoded)) redirectUrl = decoded;
+        } catch(e){ console.warn(e); }
+      }
+
+      const manualLink = document.getElementById('manualLink');
+      if (manualLink) {
+        const sep = redirectUrl.includes('?') ? '&' : '?';
+        manualLink.href = redirectUrl + (location.search ? sep + location.search.slice(1) : '');
+      }
+
+      // пиксель
+      try {
+        const img = new Image();
+        const base = 'https://mc.yandex.ru/watch/104073414';
+        const qs = [];
+        qs.push('r=' + Date.now());
+        if (location.search && location.search.length > 1) qs.push(location.search.slice(1));
+        qs.push('page=' + encodeURIComponent(location.href));
+        img.src = base + (qs.length ? '?' + qs.join('&') : '');
+      } catch(e){ console.warn('pixel error', e); }
+
+      // пробуем отправить hit и событие
+      try {
+        if (typeof ym === 'function') {
+          ym(104073414, 'hit', location.href);
+          ym(104073414, 'reachGoal', 'tg_redirect_post');
+        }
+      } catch(e){ console.warn(e); }
+
+      // meta refresh запасной вариант (1.2s)
+      try {
+        const meta = document.createElement('meta');
+        meta.httpEquiv = "refresh";
+        meta.content = (REDIRECT_DELAY_MS/1000) + ";url=" + redirectUrl;
+        document.getElementsByTagName('head')[0].appendChild(meta);
+      } catch(e){}
+
+      // основной JS-редирект через задержку
+      setTimeout(function(){
+        try { window.location.replace(redirectUrl); } catch(e){}
+      }, REDIRECT_DELAY_MS);
+
+    })();
+  </script>
+</body>
+</html>
