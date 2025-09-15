@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width,initial-scale=1"/>
   <title>Redirecting to Telegram…</title>
 
-  <!-- Яндекс.Метрика: ИСПРАВЛЕННЫЙ КОД -->
+  <!-- Яндекс.Метрика -->
   <script type="text/javascript">
     (function(m,e,t,r,i,k,a){m[i]=m[i]||function(){(m[i].a=m[i].a||[]).push(arguments)};
     m[i].l=1*new Date();
@@ -13,7 +13,6 @@
     k=e.createElement(t),a=e.getElementsByTagName(t)[0],k.async=1,k.src=r,a.parentNode.insertBefore(k,a)})
     (window, document, "script", "https://mc.yandex.ru/metrika/tag.js", "ym");
 
-    // ✅ ТЫ ОБЯЗАНА ЗАМЕНИТЬ ЭТО НА 104073414!
     ym(104073414, "init", {
       clickmap:true,
       trackLinks:true,
@@ -21,10 +20,7 @@
     });
   </script>
   <noscript>
-    <div>
-      <!-- ✅ ТЫ ОБЯЗАНА ЗАМЕНИТЬ ЭТО НА 104073414! -->
-      <img src="https://mc.yandex.ru/watch/104073414" style="position:absolute; left:-9999px;" alt="" />
-    </div>
+    <div><img src="https://mc.yandex.ru/watch/104073414" style="position:absolute; left:-9999px;" alt="" /></div>
   </noscript>
 
   <style>
@@ -38,7 +34,7 @@
 
   <script>
     (function(){
-      const DEFAULT_TG = "https://t.me/easy2invest_ru"; // ✅ УБРАЛ ПРОБЕЛЫ!
+      const DEFAULT_TG = "https://t.me/easy2invest_ru";
       const params = new URLSearchParams(location.search);
       const targetParam = params.get('target');
       const postParam = params.get('post');
@@ -61,19 +57,27 @@
 
       document.getElementById('manualLink').href = redirectUrl;
 
+      // ✅ ОТПРАВЛЯЕМ ХИТ — ОБЯЗАТЕЛЬНО!
+      try {
+        if (typeof ym === 'function') {
+          ym(104073414, 'hit');
+        }
+      } catch(e) {
+        console.warn('Ошибка отправки хита:', e);
+      }
+
+      // ✅ РЕДИРЕКТ ЧЕРЕЗ JS (задержка)
       const REDIRECT_DELAY_MS = 800;
       setTimeout(function(){
         window.location.replace(redirectUrl);
       }, REDIRECT_DELAY_MS);
 
-      // ✅ КЛЮЧЕВОЙ ДОБАВКИ: отправляем хит МЕТРИКЕ — ПОСЛЕ ИНИЦИАЛИЗАЦИИ
-      try {
-        if (typeof ym === 'function') {
-          ym(104073414, 'hit'); // ✅ Фиксируем UTM-источник до редиректа!
-        }
-      } catch(e) {
-        console.warn('Ошибка отправки хита:', e);
-      }
+      // ✅ ДОПОЛНИТЕЛЬНЫЙ РЕДИРЕКТ ЧЕРЕЗ <meta> — для надёжности
+      const fullUrl = window.location.href;
+      const meta = document.createElement('meta');
+      meta.httpEquiv = "refresh";
+      meta.content = "0;url=" + encodeURIComponent(fullUrl);
+      document.head.appendChild(meta);
 
     })();
   </script>
