@@ -6,7 +6,7 @@
   <title>Переадресация в Telegram…</title>
 
   <!-- Яндекс.Метрика -->
-  <script type="text/javascript">
+  <script>
     (function(m,e,t,r,i,k,a){
       m[i]=m[i]||function(){(m[i].a=m[i].a||[]).push(arguments)};
       m[i].l=1*new Date();
@@ -17,7 +17,8 @@
     ym(104073414, "init", {
       clickmap:true,
       trackLinks:true,
-      accurateTrackBounce:true
+      accurateTrackBounce:true,
+      webvisor:true // ✅ включим для быстрой проверки
     });
   </script>
   <noscript>
@@ -27,53 +28,67 @@
   <style>
     body { font-family: Arial, sans-serif; text-align:center; padding: 40px; color:#333; }
     .small { font-size:0.9rem; color:#666; margin-top:18px; }
+    code {font-size:.9rem; background:#f6f6f6; padding:2px 6px; border-radius:4px}
   </style>
 </head>
 <body>
   <h3>Секунду, перенаправляю вас в Telegram…</h3>
   <p class="small">Если переход не произошёл автоматически — нажмите <a id="manualLink" href="#">сюда</a>.</p>
+  <!-- необязательно, но удобно на время тестов:
+  <p class="small">UTM: <code id="utmEcho"></code></p> -->
 
   <script>
     (function(){
+      const COUNTER_ID = 104073414;
       const DEFAULT_TG = "https://t.me/easy2invest_ru";
       const params = new URLSearchParams(location.search);
-      const targetParam = params.get('target');
-      const postParam = params.get('post');
+
+      const targetParam = params.get('target'); // уже декодировано
+      const postParam   = params.get('post');
 
       let redirectUrl = DEFAULT_TG;
 
       if (postParam && /^\d+$/.test(postParam)) {
         redirectUrl = DEFAULT_TG + '/' + postParam;
       } else if (targetParam) {
-        try {
-          const decoded = decodeURIComponent(targetParam);
-          if (/^https?:\/\/(t\.me|telegram\.me)\/.+/i.test(decoded) || /^tg:\/\//i.test(decoded)) {
-            redirectUrl = decoded;
-          }
-        } catch(e) {
-          console.warn('Ошибка декодирования target', e);
+        // ✅ без повторного decodeURIComponent — он лишний и может ломать строку
+        const candidate = targetParam;
+        if (
+          /^https?:\/\/(t\.me|telegram\.me)\/.+/i.test(candidate) ||
+          /^tg:\/\//i.test(candidate)
+        ) {
+          redirectUrl = candidate;
         }
       }
 
-      // меняем ссылку "сюда"
-      document.getElementById('manualLink').href = redirectUrl;
+      // Подстрахуем «+»: если кто-то передал сырой '+', превратим его в %2B
+      // (на твои ссылки с %2B это не повлияет)
+      if (/\/\+/.test(redirectUrl)) {
+        redirectUrl = redirectUrl.replace('/+', '/%2B'); // ✅
+      }
 
-      // фиксируем визит в Метрике
+      // Линк "сюда"
+      const manual = document.getElementById('manualLink');
+      if (manual) manual.href = redirectUrl;
+
+      // (опция для отладки) показать пойманные UTM
+      // const utmEcho = document.getElementById('utmEcho');
+      // if (utmEcho) utmEcho.textContent = location.search.slice(1);
+
+      // ✅ ЯВНО фиксируем хит с UTM из адресной строки
       try {
-        if (typeof ym === 'function') {
-          ym(104073414, 'hit', location.href);
-          ym(104073414, 'reachGoal', 'tg_redirect_post');
-        }
+        ym(COUNTER_ID, 'hit', location.href, { title: document.title });
+        ym(COUNTER_ID, 'reachGoal', 'tg_redirect_post');
       } catch(e) {
         console.warn('Ошибка отправки хита:', e);
       }
 
-      // через 1 секунду редиректим в Telegram
-      const REDIRECT_DELAY_MS = 1000;
+      // ✅ Чуть больше паузы, чтобы тэг гарантированно отработал
+      const REDIRECT_DELAY_MS = 1600;
       setTimeout(function(){
+        // replace → без возврата по «Назад»
         window.location.replace(redirectUrl);
       }, REDIRECT_DELAY_MS);
-
     })();
   </script>
 </body>
